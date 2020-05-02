@@ -27,7 +27,8 @@ import {
   getViewMatrix,
   addMetersToLngLat,
   getProjectionParameters,
-  fitBounds
+  fitBounds,
+  getBounds
 } from '@math.gl/web-mercator';
 
 // TODO - import from math.gl
@@ -136,13 +137,10 @@ export default class WebMercatorViewport extends Viewport {
   get subViewports() {
     if (this._subViewports && !this._subViewports.length) {
       // Cache sub viewports so that we only calculate them once
-      const topLeft = this.unproject([0, 0]);
-      const topRight = this.unproject([this.width, 0]);
-      const bottomLeft = this.unproject([0, this.height]);
-      const bottomRight = this.unproject([this.width, this.height]);
+      const cornerLons = getBounds(this).map(p => p[0]);
 
-      const minLon = Math.min(topLeft[0], topRight[0], bottomLeft[0], bottomRight[0]);
-      const maxLon = Math.max(topLeft[0], topRight[0], bottomLeft[0], bottomRight[0]);
+      const minLon = Math.min(...cornerLons);
+      const maxLon = Math.max(...cornerLons);
 
       const minOffset = Math.floor((minLon + 180) / 360);
       const maxOffset = Math.ceil((maxLon - 180) / 360);
@@ -192,6 +190,20 @@ export default class WebMercatorViewport extends Viewport {
     const newCenter = vec2.add([], this.center, translate);
 
     return this.unprojectFlat(newCenter);
+  }
+
+  getBoundingBox() {
+    const topLeft = this.unproject([0, 0]);
+    const topRight = this.unproject([this.width, 0]);
+    const bottomLeft = this.unproject([0, this.height]);
+    const bottomRight = this.unproject([this.width, this.height]);
+
+    const minLon = Math.min(topLeft[0], topRight[0], bottomLeft[0], bottomRight[0]);
+    const maxLon = Math.max(topLeft[0], topRight[0], bottomLeft[0], bottomRight[0]);
+    const minLat = Math.min(topLeft[1], topRight[1], bottomLeft[1], bottomRight[1]);
+    const maxLat = Math.max(topLeft[1], topRight[1], bottomLeft[1], bottomRight[1]);
+
+    return [[minLon, minLat], [maxLon, maxLat]];
   }
 
   /**
