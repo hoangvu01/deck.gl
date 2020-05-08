@@ -6,6 +6,10 @@
     "start": "webpack-dev-server --progress --hot --open",
     "start-local": "webpack-dev-server --env.local --progress --hot --open"
   },
+  "nuxt": {
+    "host" : "0.0.0.0",
+    "port" : "8080"
+  },
   "dependencies": {
     "@loaders.gl/las": "^2.1.1",
     "@loaders.gl/ply": "^2.1.1",

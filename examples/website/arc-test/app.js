@@ -104,7 +104,7 @@ export default class App extends PureComponent {
         pickable: false,
         onDataLoad: this._onLoad,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        radiusPixels: 1,
+        radiusPixels: 1.2,
         getPosition: d => d.position,
         getNormal: d => d.normal,
         getColor: d => d.color,
@@ -115,11 +115,13 @@ export default class App extends PureComponent {
          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
          pickable: true,
          getWidth: 0.01,
-         getNormal: [0, 1, 0],
          getSourcePosition: d => d.from.coordinates,
          getTargetPosition: d => d.to.coordinates,
          getSourceColor: d => [0, 0 , 0],
          getTargetColor: d => [0, 0 , 0],
+         onHover: ({object, x, y}) => {
+           const tooltip = `${object.from.label} to ${object.to.label}`;
+         }
       })
     ];
 

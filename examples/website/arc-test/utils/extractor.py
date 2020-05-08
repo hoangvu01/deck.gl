@@ -29,9 +29,11 @@ edges = logoXml.getElementsByTagName('edge')
 
 edges_list = [  {
                     "from" : {
+                        "label" : nodes_dict[edge.getAttribute('source')][1],
                         "coordinates" : nodes_dict[edge.getAttribute('source')][0],
                      },
                     "to" :  {
+                        "label" : nodes_dict[edge.getAttribute('target')][1],
                         "coordinates" : nodes_dict[edge.getAttribute('target')][0]
                     }
                 }
