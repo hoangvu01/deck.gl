@@ -5,27 +5,17 @@ import DeckGL from '@deck.gl/react';
 import {COORDINATE_SYSTEM, OrbitView, LinearInterpolator} from '@deck.gl/core';
 import {PointCloudLayer, ArcLayer, LineLayer} from '@deck.gl/layers';
 import {LASWorkerLoader} from '@loaders.gl/las';
-import edges from './utils/edges.json';
-import nodes from './utils/nodes.json';
 
 import {load, registerLoaders} from '@loaders.gl/core';
 
-const EDGE_SAMPLE = [
-  {"from" : {"coordinates" : [-10,-10,-10]},
-   "to" : {"coordinates" : [10,10,10]}}
-]
-// Additional format support can be added here, see
-// https://github.com/visgl/loaders.gl/blob/master/docs/api-reference/core/register-loaders.md
-
 registerLoaders(LASWorkerLoader);
 
-// Data source: kaarta.com
-const LAZ_SAMPLE =
-  'https://raw.githubusercontent.com/nvu-arabesque/hello_worldl/master/test.laz';
+// Alternative: import json from local file -- might be slower than letting DeckGL do its job
+const nodes_sample =
+  'https://raw.githubusercontent.com/hoangvu01/deck.gl/master/examples/website/arc-test/utils/nodes.json';
 
-// Data source: The Stanford 3D Scanning Repository
-// const PLY_SAMPLE =
-//   'https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/point-cloud-ply/lucy800k.ply';
+const edges_sample =
+  'https://raw.githubusercontent.com/hoangvu01/deck.gl/master/examples/website/arc-test/utils/edges.json';
 
 const INITIAL_VIEW_STATE = {
   target: [0, 0, 0],
@@ -45,12 +35,14 @@ export default class App extends PureComponent {
     super(props);
 
     this.state = {
-      viewState: INITIAL_VIEW_STATE
+      viewState: INITIAL_VIEW_STATE,
+      hoveredNode: null,
     };
 
     this._onLoad = this._onLoad.bind(this);
     this._onViewStateChange = this._onViewStateChange.bind(this);
     this._rotateCamera = this._rotateCamera.bind(this);
+    this._renderTooltip = this._renderTooltip.bind(this);
   }
 
   _onViewStateChange({viewState}) {
@@ -94,35 +86,49 @@ export default class App extends PureComponent {
     }
   }
 
+  _renderTooltip() {
+    const {x, y, hoveredCounty} = this.state;
+    return (
+      hoveredCounty && (
+        <div className="tooltip" style={{left: x, top: y}}>
+          {hoveredNode.label}
+        </div>
+      )
+    );
+  }
+
+  _onHoverNode({x, y, object}) {
+   this.setState({x, y, hoveredNode: object});
+ }
+
   render() {
     const {viewState} = this.state;
 
     const layers = [
       new PointCloudLayer({
         id: 'laz-point-cloud-layer',
-        data: nodes,
-        pickable: false,
+        data: nodes_sample,
+        pickable: true,
         onDataLoad: this._onLoad,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        radiusPixels: 1.2,
+        radiusPixels: 1.4,
         getPosition: d => d.position,
         getNormal: d => d.normal,
         getColor: d => d.color,
+        // onHover: this._onHoverNode
       }),
       new ArcLayer({
          id: 'arc-layer',
-         data: edges,
+         data: edges_sample,
          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
          pickable: true,
-         getWidth: 0.01,
+         getWidth: 0.05,
+         getHeight: () => Math.random() * 2 - 1,
          getSourcePosition: d => d.from.coordinates,
          getTargetPosition: d => d.to.coordinates,
-         getSourceColor: d => [0, 0 , 0],
-         getTargetColor: d => [0, 0 , 0],
-         onHover: ({object, x, y}) => {
-           const tooltip = `${object.from.label} to ${object.to.label}`;
-         }
-      })
+         getSourceColor: [0, 0 , 0],
+         getTargetColor: [0, 0 , 0],
+      }),
     ];
 
     return (
@@ -134,8 +140,10 @@ export default class App extends PureComponent {
         layers={layers}
         parameters={{
           clearColor: [0.93, 0.86, 0.81, 1]
-        }}
-      />
+        }}>
+        {this._renderTooltip}
+      </DeckGL>
+
     );
   }
 }

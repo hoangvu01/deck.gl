@@ -20,7 +20,10 @@ nodes_dict = {k : [[float(v[0][0][1])/50,
                     float(v[0][2][1])/50], v[1]]
               for k,v in nodes_dict.items()}
 
-nodes_list = [{"position" : v[0], "normal": [0, 0, 0], "color": [0, 0, 0]}
+nodes_list = [{"position" : v[0],
+               "normal": [0, 0, 0],
+               "color": [0, 0, 0], 
+               "label" : v[1]}
                 for k,v in nodes_dict.items()]
 
 
