@@ -76,6 +76,7 @@
     "bindings-precommit-tests"
   ],
   "dependencies": {
+    "deck.gl": "^8.1.5",
     "esri-loader": "^2.13.0"
   }
 }

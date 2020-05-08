@@ -3,7 +3,7 @@ import React, {PureComponent} from 'react';
 import {render} from 'react-dom';
 import DeckGL from '@deck.gl/react';
 import {COORDINATE_SYSTEM, OrbitView, LinearInterpolator} from '@deck.gl/core';
-import {PointCloudLayer} from '@deck.gl/layers';
+import {PointCloudLayer, ArcLayer} from '@deck.gl/layers';
 
 import {LASWorkerLoader} from '@loaders.gl/las';
 // import {PLYWorkerLoader} from '@loaders.gl/ply';
@@ -16,7 +16,7 @@ registerLoaders(LASWorkerLoader);
 
 // Data source: kaarta.com
 const LAZ_SAMPLE =
-  'https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/point-cloud-laz/indoor.0.1.laz';
+  'https://raw.githubusercontent.com/nvu-arabesque/hello_worldl/master/test.laz';;
 // Data source: The Stanford 3D Scanning Repository
 // const PLY_SAMPLE =
 //   'https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/point-cloud-ply/lucy800k.ply';
@@ -101,6 +101,9 @@ export default class App extends PureComponent {
         getColor: [255, 255, 255],
         opacity: 0.5,
         pointSize: 0.5
+      }),
+      new ArcLayer({
+        
       })
     ];
 

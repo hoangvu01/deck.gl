@@ -3,6 +3,7 @@ import numpy as np
 from laspy.file import File
 from xml.dom import minidom
 import pylas
+import json
 
 logoXml = minidom.parse('./logo.gexf')
 nodes = logoXml.getElementsByTagName('node')
@@ -22,11 +23,14 @@ nodes_dict = {k:[(v[0][0][1], v[0][1][1], v[0][2][1]), v[1]]
 edges = logoXml.getElementsByTagName('edge')
 
 # Edges_with_coor format:
-# [ ((x1, y1, z1) , (x2, y2, z2)) ]
+# { edge_id : ((x1, y1, z1) , (x2, y2, z2)) }
 
-edges_with_coor = [(nodes_dict[edge.getAttribute('source')][0],
-                    nodes_dict[edge.getAttribute('target')][0])
-                    for edge in edges]
+edges_with_coor = {edge.getAttribute('id') :
+                    {
+                        "from" : nodes_dict[edge.getAttribute('source')][0],
+                        "to" :  nodes_dict[edge.getAttribute('target')][0]
+                    }
+                    for edge in edges }
 
 
 dtype_attr  = [('X', '<i4'),
@@ -43,14 +47,15 @@ dtype_attr  = [('X', '<i4'),
                ('green', '<u2'),
                ('blue', '<u2')]
 
-points = []
-for node in nodes_dict:
-    pos = nodes_dict[node][0]
-    node_prop = (float(pos[0]), float(pos[1]), float(pos[2]),
-                 0, 9, 0, 0, 0, 0, 0., 0, 0, 0)
-    points.append(node_prop)
+# points = []
+# for node in nodes_dict:
+#     pos = nodes_dict[node][0]
+#     node_prop = (float(pos[0]), float(pos[1]), float(pos[2]),
+#                  0, 9, 0, 0, 0, 0, 0., 0, 0, 0)
+#     points.append(node_prop)
 
-inFile = File('./indoor.0.1.laz', mode='r')
-outFile = File('./ouptut.laz', mode='w', header=inFile.header)
-outFile.points = np.array(arr, dtype=dtype_attr)
-outFile.close()
+# edges_dict = {}
+# list(map(lambda edge : edges_dict))
+
+with open('edges.json', "w") as file:
+    json.dump(edges_with_coor, file)
