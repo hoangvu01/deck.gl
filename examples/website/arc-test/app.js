@@ -3,21 +3,26 @@ import React, {PureComponent} from 'react';
 import {render} from 'react-dom';
 import DeckGL from '@deck.gl/react';
 import {COORDINATE_SYSTEM, OrbitView, LinearInterpolator} from '@deck.gl/core';
-import {PointCloudLayer, ArcLayer} from '@deck.gl/layers';
-
+import {PointCloudLayer, ArcLayer, LineLayer} from '@deck.gl/layers';
 import {LASWorkerLoader} from '@loaders.gl/las';
-// import {PLYWorkerLoader} from '@loaders.gl/ply';
+import edges from './utils/edges.json';
+import nodes from './utils/nodes.json';
+
 import {load, registerLoaders} from '@loaders.gl/core';
 
-
+const EDGE_SAMPLE = [
+  {"from" : {"coordinates" : [-10,-10,-10]},
+   "to" : {"coordinates" : [10,10,10]}}
+]
 // Additional format support can be added here, see
 // https://github.com/visgl/loaders.gl/blob/master/docs/api-reference/core/register-loaders.md
+
 registerLoaders(LASWorkerLoader);
-// registerLoaders(PLYWorkerLoader);
 
 // Data source: kaarta.com
 const LAZ_SAMPLE =
-  'https://raw.githubusercontent.com/nvu-arabesque/hello_worldl/master/test.laz';;
+  'https://raw.githubusercontent.com/nvu-arabesque/hello_worldl/master/test.laz';
+
 // Data source: The Stanford 3D Scanning Repository
 // const PLY_SAMPLE =
 //   'https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/point-cloud-ply/lucy800k.ply';
@@ -95,22 +100,27 @@ export default class App extends PureComponent {
     const layers = [
       new PointCloudLayer({
         id: 'laz-point-cloud-layer',
-        data: LAZ_SAMPLE,
+        data: nodes,
+        pickable: false,
         onDataLoad: this._onLoad,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        getNormal: [0, 1, 0],
-        getColor: [255, 255, 255],
-        opacity: 0.5,
-        pointSize: 0.5
+        radiusPixels: 1,
+        getPosition: d => d.position,
+        getNormal: d => d.normal,
+        getColor: d => d.color,
       }),
-      // new ArcLayer({
-      //    id: 'arc-layer',
-      //    arr,
-      //    pickable: true,
-      //    getWidth: 12,
-      //    getSourcePosition: d => d.from.coordinates,
-      //    getTargetPosition: d => d.to.coordinates,
-      // })
+      new ArcLayer({
+         id: 'arc-layer',
+         data: edges,
+         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+         pickable: true,
+         getWidth: 0.01,
+         getNormal: [0, 1, 0],
+         getSourcePosition: d => d.from.coordinates,
+         getTargetPosition: d => d.to.coordinates,
+         getSourceColor: d => [0, 0 , 0],
+         getTargetColor: d => [0, 0 , 0],
+      })
     ];
 
     return (

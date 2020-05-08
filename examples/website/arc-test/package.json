@@ -10,6 +10,7 @@
     "@loaders.gl/las": "^2.1.1",
     "@loaders.gl/ply": "^2.1.1",
     "deck.gl": "^8.1.0",
+    "loaders.gl": "^0.3.5",
     "react": "^16.3.0",
     "react-dom": "^16.3.0",
     "typescript": "^3.8.3"

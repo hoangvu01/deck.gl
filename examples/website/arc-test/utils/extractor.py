@@ -10,27 +10,21 @@ nodes_dict = {node.getAttribute('id') :
               node.getAttribute('label')]
               for node in nodes}
 
+
 # Nodes_dict format:
 #   {
-#       key : [(x, y, z), label]
+#       key : [[x, y, z], label]
 #   }
-nodes_dict = {k : [(float(v[0][0][1]),
-                    float(v[0][1][1]),
-                    float(v[0][2][1])), v[1]]
+nodes_dict = {k : [[float(v[0][0][1])/50,
+                    float(v[0][1][1])/50,
+                    float(v[0][2][1])/50], v[1]]
               for k,v in nodes_dict.items()}
+
+nodes_list = [{"position" : v[0], "normal": [0, 0, 0], "color": [0, 0, 0]}
+                for k,v in nodes_dict.items()]
 
 
 edges = logoXml.getElementsByTagName('edge')
-
-# Edges_with_coor format:
-# { edge_id : ((x1, y1, z1) , (x2, y2, z2)) }
-
-# edges_with_coor = {edge.getAttribute('id') :
-#                     {
-#                         "from" : nodes_dict[edge.getAttribute('source')][0],
-#                         "to" :  nodes_dict[edge.getAttribute('target')][0]
-#                     }
-#                     for edge in edges }
 
 
 edges_list = [  {
@@ -42,6 +36,7 @@ edges_list = [  {
                     }
                 }
                 for edge in edges ]
+
 dtype_attr  = [('X', '<i4'),
                ('Y', '<i4'),
                ('Z', '<i4'),
@@ -55,7 +50,8 @@ dtype_attr  = [('X', '<i4'),
                ('red', '<u2'),
                ('green', '<u2'),
                ('blue', '<u2')]
+with open('edges.json', "w") as file:
+    json.dump(edges_list, file)
 
-file = open('edges.txt', "w")
-file.write(str(edges_list))
-file.close()
+with open('nodes.json', "w") as file:
+    json.dump(nodes_list, file)
