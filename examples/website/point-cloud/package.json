@@ -11,7 +11,8 @@
     "@loaders.gl/ply": "^2.1.1",
     "deck.gl": "^8.1.0",
     "react": "^16.3.0",
-    "react-dom": "^16.3.0"
+    "react-dom": "^16.3.0",
+    "typescript": "^3.8.3"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",
