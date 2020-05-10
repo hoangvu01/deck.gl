@@ -3,19 +3,25 @@ import React, {PureComponent} from 'react';
 import {render} from 'react-dom';
 import DeckGL from '@deck.gl/react';
 import {COORDINATE_SYSTEM, OrbitView, LinearInterpolator} from '@deck.gl/core';
-import {PointCloudLayer, ArcLayer, LineLayer} from '@deck.gl/layers';
+import {PointCloudLayer, ArcLayer} from '@deck.gl/layers';
+
 import {LASWorkerLoader} from '@loaders.gl/las';
-
+// import {PLYWorkerLoader} from '@loaders.gl/ply';
 import {load, registerLoaders} from '@loaders.gl/core';
+import edges_sample from './utils/edges.json';
 
+
+// Additional format support can be added here, see
+// https://github.com/visgl/loaders.gl/blob/master/docs/api-reference/core/register-loaders.md
 registerLoaders(LASWorkerLoader);
+// registerLoaders(PLYWorkerLoader);
 
-// Alternative: import json from local file -- might be slower than letting DeckGL do its job
-const nodes_sample =
-  'https://raw.githubusercontent.com/hoangvu01/deck.gl/master/examples/website/arc-test/utils/nodes.json';
-
-const edges_sample =
-  'https://raw.githubusercontent.com/hoangvu01/deck.gl/master/examples/website/arc-test/utils/edges.json';
+// Data source: kaarta.com
+const LAZ_SAMPLE =
+  'https://raw.githubusercontent.com/nvu-arabesque/hello_worldl/master/test.laz';;
+// Data source: The Stanford 3D Scanning Repository
+// const PLY_SAMPLE =
+//   'https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/point-cloud-ply/lucy800k.ply';
 
 const INITIAL_VIEW_STATE = {
   target: [0, 0, 0],
@@ -35,13 +41,12 @@ export default class App extends PureComponent {
     super(props);
 
     this.state = {
-      viewState: INITIAL_VIEW_STATE,
+      viewState: INITIAL_VIEW_STATE
     };
 
     this._onLoad = this._onLoad.bind(this);
     this._onViewStateChange = this._onViewStateChange.bind(this);
     this._rotateCamera = this._rotateCamera.bind(this);
-    this._renderTooltip = this._renderTooltip.bind(this);
   }
 
   _onViewStateChange({viewState}) {
@@ -85,48 +90,32 @@ export default class App extends PureComponent {
     }
   }
 
-  _renderTooltip() {
-    const {hoveredObject, pointerX, pointerY} = this.state || {};
-    return hoveredObject && (
-      <div class='tooltip'
-           style={{left: pointerX, top: pointerY}}>
-        { hoveredObject.label }
-      </div>
-    );
-}
-
   render() {
     const {viewState} = this.state;
 
     const layers = [
       new PointCloudLayer({
-        id: 'point-cloud-layer',
-        data: nodes_sample,
-        pickable: true,
+        id: 'laz-point-cloud-layer',
+        data: LAZ_SAMPLE,
         onDataLoad: this._onLoad,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-        radiusPixels: 1.4,
-        getPosition: edge => edge.position,
-        getNormal: edge => edge.normal,
-        getColor: edge => edge.color,
-        onHover: info => this.setState({
-          hoveredObject: info.object,
-          pointerX: info.x,
-          pointerY: info.y
-        })
+        getNormal: [0, 1, 0],
+        getColor: [255, 255, 255],
+        opacity: 0.5,
+        pointSize: 0.5
       }),
       new ArcLayer({
-         id: 'arc-layer',
-         data: edges_sample,
-         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
-         pickable: true,
-         getWidth: 0.05,
-         getHeight: () => (Math.random() * 2 - 1),
-         getSourcePosition: edge => edge.from.coordinates,
-         getTargetPosition: edge => edge.to.coordinates,
-         getSourceColor: [0, 0 , 0],
-         getTargetColor: [0, 0 , 0],
-      }),
+        id: 'arc-layer',
+        data: edges_sample,
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        pickable: true,
+        getWidth: 0.05,
+        getHeight: () => (Math.random() * 2 - 1),
+        getSourcePosition: edge => edge.from.coordinates,
+        getTargetPosition: edge => edge.to.coordinates,
+        getSourceColor: [0, 0 , 0],
+        getTargetColor: [0, 0 , 0],
+      })
     ];
 
     return (
@@ -138,10 +127,8 @@ export default class App extends PureComponent {
         layers={layers}
         parameters={{
           clearColor: [0.93, 0.86, 0.81, 1]
-        }}>
-        {this._renderTooltip}
-      </DeckGL>
-
+        }}
+      />
     );
   }
 }
