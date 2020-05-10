@@ -36,7 +36,6 @@ export default class App extends PureComponent {
 
     this.state = {
       viewState: INITIAL_VIEW_STATE,
-      hoveredNode: null,
     };
 
     this._onLoad = this._onLoad.bind(this);
@@ -87,35 +86,34 @@ export default class App extends PureComponent {
   }
 
   _renderTooltip() {
-    const {x, y, hoveredCounty} = this.state;
-    return (
-      hoveredCounty && (
-        <div className="tooltip" style={{left: x, top: y}}>
-          {hoveredNode.label}
-        </div>
-      )
+    const {hoveredObject, pointerX, pointerY} = this.state || {};
+    return hoveredObject && (
+      <div class='tooltip'
+           style={{left: pointerX, top: pointerY}}>
+        { hoveredObject.label }
+      </div>
     );
-  }
-
-  _onHoverNode({x, y, object}) {
-   this.setState({x, y, hoveredNode: object});
- }
+}
 
   render() {
     const {viewState} = this.state;
 
     const layers = [
       new PointCloudLayer({
-        id: 'laz-point-cloud-layer',
+        id: 'point-cloud-layer',
         data: nodes_sample,
         pickable: true,
         onDataLoad: this._onLoad,
         coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
         radiusPixels: 1.4,
-        getPosition: d => d.position,
-        getNormal: d => d.normal,
-        getColor: d => d.color,
-        // onHover: this._onHoverNode
+        getPosition: edge => edge.position,
+        getNormal: edge => edge.normal,
+        getColor: edge => edge.color,
+        onHover: info => this.setState({
+          hoveredObject: info.object,
+          pointerX: info.x,
+          pointerY: info.y
+        })
       }),
       new ArcLayer({
          id: 'arc-layer',
@@ -123,9 +121,9 @@ export default class App extends PureComponent {
          coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
          pickable: true,
          getWidth: 0.05,
-         getHeight: () => Math.random() * 2 - 1,
-         getSourcePosition: d => d.from.coordinates,
-         getTargetPosition: d => d.to.coordinates,
+         getHeight: () => (Math.random() * 2 - 1),
+         getSourcePosition: edge => edge.from.coordinates,
+         getTargetPosition: edge => edge.to.coordinates,
          getSourceColor: [0, 0 , 0],
          getTargetColor: [0, 0 , 0],
       }),
