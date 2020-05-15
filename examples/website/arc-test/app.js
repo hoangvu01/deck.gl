@@ -2,13 +2,14 @@
 import React, {Component} from 'react';
 import {render} from 'react-dom';
 import ReactMarkdown from 'react-markdown'
+import MarkDownRenderer from './MarkDownRenderer';
 
 import content from './README.md';
 
 class App extends Component {
   render() {
     return(
-      <ReactMarkdown source={content} />
+      <MarkDownRenderer path={'./README.md'} />
     )
   }
 }
